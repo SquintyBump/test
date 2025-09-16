@@ -8,3 +8,14 @@ class Book(db.Model):
 
     def __repr__(self):
         return f'<Book {self.title}>'
+
+
+class Indexer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    url = db.Column(db.String(128), unique=True)
+    api_key = db.Column(db.String(128))
+    indexer_type = db.Column(db.String(64), default='Torznab')
+
+    def __repr__(self):
+        return f'<Indexer {self.name}>'

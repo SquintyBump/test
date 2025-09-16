@@ -6,3 +6,15 @@ class AddBookForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     author = StringField('Author', validators=[DataRequired()])
     submit = SubmitField('Add Book')
+
+
+class IndexerForm(FlaskForm):
+    name = StringField('Indexer Name', validators=[DataRequired()])
+    url = StringField('URL', validators=[DataRequired()])
+    api_key = StringField('API Key', validators=[DataRequired()])
+    submit = SubmitField('Save Indexer')
+
+
+class SearchForm(FlaskForm):
+    query = StringField('Search for a book', validators=[DataRequired()])
+    submit = SubmitField('Search')

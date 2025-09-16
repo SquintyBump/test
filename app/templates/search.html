@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ title }} - Readarr</title>
+    </head>
+    <body>
+        <h1>Search for Books</h1>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.query.label }}<br>
+                {{ form.query(size=64) }}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        <hr>
+        {% if results %}
+        <h2>Search Results</h2>
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Link</th>
+            </tr>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.title }}</td>
+                <td><a href="{{ result.link }}" target="_blank">Download</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        <hr>
+        <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+    </body>
+</html>
