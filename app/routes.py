@@ -1,8 +1,9 @@
 from app import app, db
 from app import torznab
-from app.models import Book, Indexer
-from flask import render_template, flash, redirect, url_for
-from app.forms import AddBookForm, IndexerForm, SearchForm
+from app import qbittorrent
+from app.models import Book, Indexer, DownloadClient
+from flask import render_template, flash, redirect, url_for, request
+from app.forms import AddBookForm, IndexerForm, SearchForm, DownloadClientForm
 
 @app.route('/')
 @app.route('/index')
@@ -51,3 +52,55 @@ def search():
             indexer_results = torznab.search(indexer.url, indexer.api_key, query)
             results.extend(indexer_results)
     return render_template('search.html', title='Search', form=form, results=results)
+
+
+@app.route('/download_clients')
+def download_clients():
+    all_clients = DownloadClient.query.all()
+    return render_template('download_clients.html', title='Download Clients', clients=all_clients)
+
+
+@app.route('/add_download_client', methods=['GET', 'POST'])
+def add_download_client():
+    form = DownloadClientForm()
+    if form.validate_on_submit():
+        client = DownloadClient(name=form.name.data,
+                                host=form.host.data,
+                                port=form.port.data,
+                                username=form.username.data,
+                                password=form.password.data)
+        db.session.add(client)
+        db.session.commit()
+        flash('New download client has been added!')
+        return redirect(url_for('download_clients'))
+    return render_template('add_download_client.html', title='Add Download Client', form=form)
+
+
+@app.route('/send_to_client', methods=['POST'])
+def send_to_client():
+    download_link = request.form.get('link')
+    if not download_link:
+        flash('No download link provided.')
+        return redirect(url_for('search'))
+
+    # For simplicity, assume only one download client is configured
+    client_config = DownloadClient.query.first()
+
+    if not client_config:
+        flash('No download client configured. Please add one first.')
+        return redirect(url_for('download_clients'))
+
+    success = qbittorrent.add_download(
+        host=client_config.host,
+        port=client_config.port,
+        username=client_config.username,
+        password=client_config.password,
+        link=download_link
+    )
+
+    if success:
+        flash('Download successfully sent to qBittorrent!')
+    else:
+        flash('Failed to send download to qBittorrent.')
+
+    return redirect(url_for('search'))

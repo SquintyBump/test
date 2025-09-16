@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Configured Download Clients</h1>
+    <p><a href="{{ url_for('add_download_client') }}">Add a new download client</a></p>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Host</th>
+            <th>Port</th>
+        </tr>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.name }}</td>
+            <td>{{ client.host }}</td>
+            <td>{{ client.port }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

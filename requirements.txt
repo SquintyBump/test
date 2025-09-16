@@ -4,3 +4,4 @@ Flask-Migrate
 Flask-WTF
 PyInstaller
 requests
+qbittorrent-api

@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ title }} - Readarr</title>
+    </head>
+    <body>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a> |
+            <a href="{{ url_for('search') }}">Search</a> |
+            <a href="{{ url_for('indexers') }}">Indexers</a> |
+            <a href="{{ url_for('download_clients') }}">Download Clients</a>
+        </nav>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </body>
+</html>

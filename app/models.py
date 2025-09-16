@@ -19,3 +19,16 @@ class Indexer(db.Model):
 
     def __repr__(self):
         return f'<Indexer {self.name}>'
+
+
+class DownloadClient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    client_type = db.Column(db.String(64), default='qBittorrent')
+    host = db.Column(db.String(128))
+    port = db.Column(db.Integer)
+    username = db.Column(db.String(64))
+    password = db.Column(db.String(128))  # In a real app, this should be encrypted
+
+    def __repr__(self):
+        return f'<DownloadClient {self.name}>'
