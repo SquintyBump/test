@@ -11,6 +11,7 @@ def index():
     books = Book.query.all()
     return render_template('index.html', title='Home', books=books)
 
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
     form = AddBookForm()
@@ -79,18 +80,23 @@ def add_download_client():
 @app.route('/send_to_client', methods=['POST'])
 def send_to_client():
     download_link = request.form.get('link')
-    if not download_link:
-        flash('No download link provided.')
+    query = request.form.get('query')
+    if not download_link or not query:
+        flash('Invalid request.')
         return redirect(url_for('search'))
 
-    # For simplicity, assume only one download client is configured
-    client_config = DownloadClient.query.first()
+    # This is a simplification; a real app might need a more robust way to link a result to a book
+    book = Book.query.filter_by(title=query).first()
+    if not book:
+        flash(f"Could not find a wanted book with the title: {query}")
+        return redirect(url_for('search'))
 
+    client_config = DownloadClient.query.first()
     if not client_config:
-        flash('No download client configured. Please add one first.')
+        flash('No download client configured.')
         return redirect(url_for('download_clients'))
 
-    success = qbittorrent.add_download(
+    download_hash = qbittorrent.add_download(
         host=client_config.host,
         port=client_config.port,
         username=client_config.username,
@@ -98,8 +104,11 @@ def send_to_client():
         link=download_link
     )
 
-    if success:
-        flash('Download successfully sent to qBittorrent!')
+    if download_hash:
+        book.status = 'downloading'
+        book.download_id = download_hash
+        db.session.commit()
+        flash(f"Download for '{book.title}' successfully sent to qBittorrent!")
     else:
         flash('Failed to send download to qBittorrent.')
 

@@ -1,9 +1,11 @@
 import sys
 import os
+import atexit
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from apscheduler.schedulers.background import BackgroundScheduler
 
 if getattr(sys, 'frozen', False):
     # If the application is run as a bundle, the PyInstaller bootloader
@@ -19,5 +21,21 @@ else:
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
+
+from app import jobs
+
+# Add the job to the scheduler
+scheduler.add_job(
+    func=jobs.check_completed_downloads,
+    trigger='interval',
+    minutes=1
+)
 
 from app import routes, models

@@ -5,3 +5,4 @@ Flask-WTF
 PyInstaller
 requests
 qbittorrent-api
+APScheduler
